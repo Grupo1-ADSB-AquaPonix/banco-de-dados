@@ -1,25 +1,40 @@
 create database projeto;
 use projeto;
 
-create table usuario(
+create table endereco(
+idEndereco int primary key auto_increment not null,
+cep char(9) not null,
+numero varchar(10) not null,
+complemento varchar(45) not null
+);
+
+create table empresa(
+idEmpresa int primary key auto_increment not null,
+nome varchar(45) not null,
+cnpj char(18) unique not null,
+email varchar(45) not null,
+telefoneCelular varchar(20) not null,
+telefoneFixo varchar(10),
+senha varchar(30) not null
+);
+
+create table funcionario(
 idUsuario int primary key auto_increment not null,
 nome varchar(45) not null,
 email varchar(45) not null,
-cpf char(14) unique not null,
-telefone varchar(20) not null,
-senha varchar(40) not null,
-cep char(9),
-numero varchar(10),
-complemento varchar(45)
+cpf char(11) not null,
+telefone varchar(20),
+senha varchar(40),
+fkEmpresa int
 );
 
 create table tanque(
 idTanque int primary key auto_increment not null,
 qtdLitros int not null,
 qtdPeixes int not null,
-fkUsuario int not null,
-constraint fkTanqueUsuario foreign key (fkUsuario)
-	references usuario(idUsuario)
+fkEmpresa int not null,
+constraint fkTanqueEmpresa foreign key (fkEmpresa)
+	references empresa(idEmpresa)
 );
 
 create table horta(
@@ -47,10 +62,15 @@ constraint fkHortaSensor foreign key (fkHorta)
 	references horta(idHorta)
 );
 
-insert into usuario values
-(default, 'Ronaldo', 'ronaldo.fenomeno@gmail.com', '774.874.574-15', '11-955419758', 'ronaldo123', '18079-630', '155', 'Apto. 109'),
-(default, 'Adalberto', 'adalberto.beto@gmail.com', '125.351.241-16', '11-925621262', 'betinho125', '29844-895', '812', 'Próximo ao bar do zé'),
-(default, 'Marcos', 'marcao777@gmail.com', '541.635.825-12', '11-974875223', 'marcasso78', '54897-544', '411', 'Casa cinza');
+insert into endereco values
+(default, '18079-630', '155', 'Proximo ao mercado extra'),
+(default, '29844-895', '812', 'Ao lado da concessionária'),
+(default, '54897-544', '411', 'Em frente do Burguer King');
+
+insert into empresa values
+(default, 'Ronaldo', '27.480.347/0001-35','ronaldo.fenomeno@gmail.com', '11-955419758', 'ronaldo123', 1),
+(default, 'Adalberto', '66.835.460/0001-48','adalberto.beto@gmail.com', '11-925621262', 'betinho125', 2),
+(default, 'Marcos', '85.740.687/0001-54','marcao777@gmail.com', '11-974875223', 'marcasso78', 3);
 
 insert into tanque values 
 (default, 1000, 35, 1),
@@ -70,7 +90,7 @@ insert into sensor values
 (default, 'LDR', 'Luminosidade', null, 655, null, 2),
 (default, 'LDR', 'Luminosidade', null, 844, null, 3);
 
-select * from usuario;
+select * from empresa;
 select * from tanque;
 select * from horta;
 select * from sensor;
