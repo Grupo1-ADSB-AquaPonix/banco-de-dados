@@ -4,7 +4,7 @@ use projeto;
 create table endereco(
 idEndereco int primary key auto_increment not null,
 cep char(9) not null,
-numero varchar(10) not null,
+numero int not null,
 complemento varchar(45) not null
 );
 
@@ -13,19 +13,24 @@ idEmpresa int primary key auto_increment not null,
 nome varchar(45) not null,
 cnpj char(18) unique not null,
 email varchar(45) not null,
-telefoneCelular varchar(20) not null,
-telefoneFixo varchar(10),
-senha varchar(30) not null
+telefoneCelular varchar(20),
+telefoneFixo varchar(20),
+senha varchar(30) not null,
+fkEndereco int,
+constraint fkEmpresaEndereco foreign key (fkEndereco)
+	references endereco (idEndereco)
 );
 
 create table funcionario(
 idUsuario int primary key auto_increment not null,
 nome varchar(45) not null,
 email varchar(45) not null,
-cpf char(11) not null,
-telefone varchar(20),
-senha varchar(40),
-fkEmpresa int
+cpf char(11) unique not null,
+telefoneCelular varchar(20),
+senha varchar(30),
+fkEmpresa int,
+constraint fkFuncionarioEmpresa foreign key (fkEmpresa)
+	references empresa (idEmpresa)
 );
 
 create table tanque(
@@ -34,32 +39,42 @@ qtdLitros int not null,
 qtdPeixes int not null,
 fkEmpresa int not null,
 constraint fkTanqueEmpresa foreign key (fkEmpresa)
-	references empresa(idEmpresa)
+	references empresa (idEmpresa)
 );
 
 create table horta(
-idHorta int primary key auto_increment not null,
+idHorta int,
+fkTanque int,
+constraint pkHortaTanque primary key (idHorta, fkTanque),
 nomeVegetal varchar(40) not null,
 qtdPlantada int not null,
-fkTanque int,
-constraint fkTanqueHorta foreign key (fkTanque)
+constraint fkHortaTanque foreign key (fkTanque)
 	references tanque(idTanque)
 );
 
 create table sensor(
 idSensor int primary key auto_increment not null,
-nome varchar(5) not null,
+nome varchar(4) not null,
 constraint chkNomeSensor check (nome in('LM35', 'LDR')),
 tipo varchar(12) not null,
 constraint chkTipoSensor check (tipo in('Temperatura', 'Luminosidade')),
-temperatura float,
-luminosidade float,
 fkTanque int,
 constraint fkTanqueSensor foreign key (fkTanque)
-	references tanque(idTanque),
+	references tanque (idTanque),
 fkHorta int,
 constraint fkHortaSensor foreign key (fkHorta)
 	references horta(idHorta)
+);
+
+create table dados(
+idDado int,
+fkSensor int, 
+constraint pkDadosSensor primary key (idDado, fkSensor),
+temperatura float,
+luminosidade int,
+dtColeta datetime,
+constraint fkDadosSensor foreign key (fkSensor)
+	references sensor (idSensor)
 );
 
 insert into endereco values
