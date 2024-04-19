@@ -22,7 +22,7 @@ constraint fkEmpresaEndereco foreign key (fkEndereco)
 );
 
 create table funcionario(
-idUsuario int primary key auto_increment not null,
+idFuncionario int primary key auto_increment not null,
 nome varchar(45) not null,
 email varchar(45) not null,
 cpf char(11) unique not null,
@@ -83,9 +83,15 @@ insert into endereco values
 (default, '54897-544', '411', 'Em frente do Burguer King');
 
 insert into empresa values
-(default, 'Ronaldo', '27.480.347/0001-35','ronaldo.fenomeno@gmail.com', '11-955419758', 'ronaldo123', 1),
-(default, 'Adalberto', '66.835.460/0001-48','adalberto.beto@gmail.com', '11-925621262', 'betinho125', 2),
-(default, 'Marcos', '85.740.687/0001-54','marcao777@gmail.com', '11-974875223', 'marcasso78', 3);
+(default, 'AquaCulture Connections', '27.480.347/0001-35','AquaCulture@gmail.com', '11-955419758', '11-955419758', 'ronaldo123', 1),
+(default, 'Sustainable AquaGrow', '66.835.460/0001-48','AquaGrow@gmail.com', '11-925621262', '11-955419758', 'betinho125', 2),
+(default, 'AquaVida Solutions', '85.740.687/0001-54','AquaVida.Solutions@gmail.com', '11-974875223', '11-955419758', 'marcasso78', 3);
+
+insert into funcionario values
+	(default, 'Pedro Rocha', 'pedroRocha@gmail.com', '12312312300', '11 90001-1234', '12345678', 1),
+	(default, 'Gustavo Barreto', 'GustavoBarreto@gmail.com', '99999999999', '11 91234-4321', '987654321', 2),
+	(default, 'Paula Fernandes', 'contato.Paula@gmail.com', '32132132199', '11 90909-8799', '147258369', 2),
+	(default, 'Ronaldo', 'ronaldo.fenomeno@gmail.com', '22222288800', '11 97878-9874', '1010101010', 3);
 
 insert into tanque values 
 (default, 1000, 35, 1),
@@ -93,19 +99,91 @@ insert into tanque values
 (default, 1500, 45, 3);
 
 insert into horta values
-(default, 'Alface', 20, 1),
-(default, 'Couve', 25, 2),
-(default, 'Coentro', 20, 3);
+(1, 1, 'Alface', 20),
+(1, 2, 'Couve', 25),
+(1, 3, 'Coentro', 20);
 
-insert into sensor values
-(default, 'LM35', 'Temperatura', 25.7, null, 1, null),
-(default, 'LM35', 'Temperatura', 26.5, null, 2, null),
-(default, 'LM35', 'Temperatura', 24.2, null, 3, null),
-(default, 'LDR', 'Luminosidade', null, 485, null, 1),
-(default, 'LDR', 'Luminosidade', null, 655, null, 2),
-(default, 'LDR', 'Luminosidade', null, 844, null, 3);
+insert into sensor(nome, tipo, fkTanque) 
+	values('LM35', 'Temperatura', 1),
+		  ('LM35', 'Temperatura', 2),
+		  ('LM35', 'Temperatura', 3);
+            
+insert into sensor(nome, tipo, fkTanque, fkHorta)
+	values('LDR', 'Luminosidade', 1, 1),
+		  ('LDR', 'Luminosidade', 2, 1),
+          ('LDR', 'Luminosidade', 3, 1);
+          
+insert into dados values 
+	(1, 1, 16.5, 47, '2024-04-19 20:00:00'),
+	(1, 2, 18.5, 62, '2024-04-19 20:00:00'),
+	(1, 3, 19.5, 59, '2024-04-19 20:00:00'),
+	(2, 1, 17.5, 53, '2024-04-19 21:00:00'),
+	(2, 2, 18, 54, '2024-04-19 21:00:00'),
+	(2, 3, 18.5, 50, '2024-04-19 21:00:00'),
+	(3, 1, 15.5, 47, '2024-04-19 22:00:00'),
+	(3, 2, 16, 43, '2024-04-19 22:00:00'),
+	(3, 3, 15.5, 49, '2024-04-19 22:00:00');
 
 select * from empresa;
 select * from tanque;
 select * from horta;
 select * from sensor;
+select * from funcionario;
+select * from dados;
+
+-- Select para ver quais funcionários trabalham em quais empresas
+select empresa.idEmpresa as IDEmpresa, 
+	empresa.nome as Empresa,
+	empresa.cnpj as CNPJ,
+    empresa.email as Email,
+    funcionario.idFuncionario as IDFuncionario,
+    funcionario.nome as Funcionario,
+    funcionario.email as 'Email Funcionario',
+    funcionario.telefoneCelular as 'Telefone Funcionário'
+    from empresa join funcionario
+    on empresa.idEmpresa = funcionario.fkEmpresa;
+    
+-- Select para ver os tanques e hortas de cada empresa
+select empresa.idEmpresa as IDEmpresa, 
+	empresa.nome as Empresa,
+	empresa.cnpj as CNPJ,
+    empresa.email as Email,
+    tanque.idTanque as IDTanque,
+    tanque.qtdLItros as QTDlitros,
+    tanque.qtdPeixes as QTDpeixes,
+    horta.idHorta as IDHorta,
+    horta.nomeVegetal as 'Nome Vegetal',
+    horta.nomeVegetal as qtdPlantada
+    from empresa join tanque
+    on empresa.idEmpresa = tanque.fkEmpresa
+    join horta
+    on tanque.idTanque = horta.fkTanque;
+    
+    
+-- Select para ver os dados de temperatura dos tanques
+select tanque.idTanque as Tanque,
+	tanque.qtdPeixes as QTDPeixes,
+    sensorTanque.nome as 'Nome Sensor Tanque',
+    sensorTanque.tipo as 'Tipo Sensor Tanque',
+    dados.temperatura as Temperatura,
+    dados.dtColeta as 'Data de Coleta'
+    from tanque join sensor as sensorTanque
+    on tanque.idTanque = sensorTanque.fkTanque
+    join dados 
+    on sensorTanque.idSensor = dados.fkSensor;
+
+-- Select para ver os dados de luminosidade das hortas
+select horta.idHorta as Horta,
+	tanque.idTanque as Tanque,
+	horta.nomeVegetal as 'Nome do Vegetal',
+    sensorHorta.nome as 'Nome Sensor Tanque',
+    replace("Temperatura", sensorHorta.tipo, 'Luminosidade'), -- REPLACE(valorOriginal, valorParaSubstituir, ValordeSubstituicao)
+    dados.luminosidade as 'Luminosidade',
+    dados.dtColeta as 'Data de Coleta'
+    from horta join sensor as sensorHorta
+    on horta.fkTanque = sensorHorta.fkTanque
+    join dados 
+    on dados.fkSensor = sensorHorta.idSensor
+    join tanque 
+    on tanque.idTanque = horta.fkTanque;
+    
