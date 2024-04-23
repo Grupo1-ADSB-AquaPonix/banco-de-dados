@@ -1,4 +1,5 @@
 create database projeto;
+
 use projeto;
 
 create table endereco(
@@ -131,7 +132,8 @@ select * from sensor;
 select * from funcionario;
 select * from dados;
 
--- Select para ver quais funcionários trabalham em quais empresas
+  -- Select para ver quais funcionários trabalham em quais empresas -- 
+  
 select empresa.idEmpresa as IDEmpresa, 
 	empresa.nome as Empresa,
 	empresa.cnpj as CNPJ,
@@ -143,7 +145,8 @@ select empresa.idEmpresa as IDEmpresa,
     from empresa join funcionario
     on empresa.idEmpresa = funcionario.fkEmpresa;
     
--- Select para ver os tanques e hortas de cada empresa
+-- Select para ver os tanques e hortas de cada empresa --
+
 select empresa.idEmpresa as IDEmpresa, 
 	empresa.nome as Empresa,
 	empresa.cnpj as CNPJ,
@@ -160,7 +163,8 @@ select empresa.idEmpresa as IDEmpresa,
     on tanque.idTanque = horta.fkTanque;
     
     
--- Select para ver os dados de temperatura dos tanques
+-- Select para ver os dados de temperatura dos tanques -- 
+
 select tanque.idTanque as Tanque,
 	tanque.qtdPeixes as QTDPeixes,
     sensorTanque.nome as 'Nome Sensor Tanque',
@@ -172,7 +176,8 @@ select tanque.idTanque as Tanque,
     join dados 
     on sensorTanque.idSensor = dados.fkSensor;
 
--- Select para ver os dados de luminosidade das hortas
+-- Select para ver os dados de luminosidade das hortas -- 
+
 select horta.idHorta as Horta,
 	tanque.idTanque as Tanque,
 	horta.nomeVegetal as 'Nome do Vegetal',
