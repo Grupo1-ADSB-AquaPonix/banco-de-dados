@@ -33,59 +33,47 @@ constraint fkFuncionarioEmpresa foreign key (fkEmpresa)
 	references empresa (idEmpresa)
 );
 
-create table tanque(
-idTanque int primary key auto_increment,
-qtdLitros int not null,
-qtdPeixes int not null,
-fkEmpresa int not null,
-constraint fkTanqueEmpresa foreign key (fkEmpresa)
-	references empresa (idEmpresa)
+create table tipo_especie(
+	idTipoEspecie int primary key auto_increment,
+    tipo varchar(30),
+    constraint chkTipoEspecie check (tipo in ('Peixe', 'Planta'))
 );
 
-create table horta(
-idHorta int,
-fkTanque int,
-constraint pkHortaTanque primary key (idHorta, fkTanque),
-nomeVegetal varchar(40) not null,
-qtdPlantada int not null,
-constraint fkHortaTanque foreign key (fkTanque)
-	references tanque(idTanque)
+create table local(
+	idLocal int,
+    constraint primary key(idLocal, fkEmpresa),
+    tipo varchar(30) not null,
+    constraint chkTipo check (tipo in ('Horta', 'Tanque')),
+    qtdEspecie int not null,
+    especie varchar(50) not null,
+    ocupacaoMax int not null,
+    fkTipoEspecie int not null,
+    fkEmpresa int not null,
+    constraint fkLocalEmpresa foreign key (fkEmpresa)
+		references empresa (idEmpresa),
+    constraint fkTipoLocal foreign key (fkTipoEspecie) 
+		references tipo_especie (idTipoEspecie)
 );
 
-create table sensor_tanque(
-idSensor int primary key auto_increment,
-nome varchar(5),
-tipo varchar(12),
-fkTanque int,
-constraint fkTanqueSensor foreign key (fkTanque)
-	references tanque(idTanque),
-constraint tpSensorTanque check (nome = 'LM35')
+create table sensor(
+	idSensor int,
+    nome varchar(50),
+    constraint chkNomeSensor check(nome in ('LDR', 'LM35')),
+    tipo varchar(50),
+    fkLocal int,
+    fkEmpresa int,
+    constraint primary key(idSensor, fkLocal, fkEmpresa)
 );
 
-create table sensor_horta(
-idSensor int primary key auto_increment,
-nome varchar(5),
-tipo varchar(12),
-fkHorta int,
-fkTanque int,
-constraint fkHortaSensor foreign key (fkHorta)
-	references horta(idHorta),
-constraint fkTanqueHorta foreign key (fkTanque)
-	references tanque(idTanque),
-constraint tpSensorHorta check (nome = 'LDR')
-);
-
-create table dados(
+create table dadosCapturados(
 	idDado int,
-    fkSensorTanque int,
-    fkSensorHorta int,
-    constraint pkDadosSensores primary key (idDado, fkSensorTanque, fkSensorHorta),
-    temperatura float(5,2),
-    luminosidade int,
-    dtColeta datetime default current_timestamp
+	valor decimal(5,2),
+    dtColeta datetime default current_timestamp,
+    fkSensor int,
+    fkLocal int,
+    fkEmpresa int,
+    constraint pkDadosSensores primary key (idDado, fkSensor, fkLocal, fkEmpresa)
 );
-
-create unique index pkCompostaDados on dados(idDado, fkSensorTanque, fkSensorHorta);
 
 insert into endereco values
 (default, '18079-630', '155', 'Proximo ao mercado extra'),
@@ -101,43 +89,35 @@ insert into funcionario values
 (1, 2, 'Paula Fernandes', 'contato.Paula@gmail.com', '32132132199', '11 90909-8799', '147258369'),
 (2, 2, 'Ronaldo', 'ronaldo.fenomeno@gmail.com', '22222288800', '11 97878-9874', '1010101010');
 
-insert into tanque values
-(default, 1000, 10, 1),
-(default, 1000, 10, 1),
-(default, 1000, 10, 2);
+insert into tipo_especie values
+	(null, 'Planta'),
+    (null, 'Peixe');
+
+insert into local values
+	(1, 'Tanque', 25, 'Tilápia', '30', 2, 1),
+	(2, 'Horta', 25, 'Alface', '30', 1, 1);
     
-insert into horta values
-(1, 1, 'Alface', '25'),
-(1, 2, 'Cenoura', '25'),
-(1, 3, 'Quiabo', '25');
+insert into sensor values
+	(1, 'LM35', 'Temperatura', 1, 1),
+	(2, 'LDR', 'Luminosidade', 2, 1);
 
-insert into sensor_tanque values
-(default, 'LM35', 'Temperatura', 1),
-(default, 'LM35', 'Temperatura', 2),
-(default, 'LM35', 'Temperatura', 3);
-
-insert into sensor_horta values
-(default, 'LDR', 'Luminosidade', 1, 1),
-(default, 'LDR', 'Luminosidade', 1, 2),
-(default, 'LDR', 'Luminosidade', 1, 3);
-
-insert into dados values 
-(1, 1, 1, 16.5, 230, '2024-04-19 20:00:00'),
-(2, 1, 1, 18.5, 220, '2024-04-19 21:00:00'),
-(3, 1, 1, 19.5, 245, '2024-04-19 22:00:00'),
-(4, 1, 1, 17.5, 310, '2024-04-19 23:00:00'),
-(1, 2, 2, 18, 290, '2024-04-19 20:00:00'),
-(2, 2, 2, 18.5, 278, '2024-04-19 21:00:00'),
-(3, 2, 2, 15.5, 270, '2024-04-19 22:00:00'),
-(1, 3, 3, 16, 280, '2024-04-19 20:00:00'),
-(2, 3, 3, 15.5, 300, '2024-04-19 21:00:00');
+insert into dadosCapturados values 
+(1, 27, default, 1, 1, 1),
+(2, 25.5, default, 1, 1, 1),
+(3, 26, default, 1, 1, 1),
+(4, 24, default, 1, 1, 1),
+(1, 280, default, 2, 1, 1),
+(2, 300, default, 2, 1, 1),
+(3, 310, default, 2, 1, 1),
+(4, 320, default, 2, 1, 1);
 
 select * from empresa;
-select * from tanque;
-select * from horta;
 select * from sensor;
 select * from funcionario;
-select * from dados;
+select * from tipo_especie;
+select * from endereco;
+select * from dadosCapturados;
+select * from local;
 
 -- Select para ver quais funcionários trabalham em quais empresas
   
@@ -150,18 +130,3 @@ select empresa.idEmpresa as IDEmpresa,
     funcionario.telefoneCelular as 'Telefone Funcionário'
     from empresa join funcionario
     on empresa.idEmpresa = funcionario.fkEmpresa;
-    
--- Select para ver os tanques e hortas de cada empresa
-select empresa.idEmpresa as IDEmpresa, 
-	empresa.razaoSocial as Empresa,
-	empresa.cnpj as CNPJ,
-    tanque.idTanque as IDTanque,
-    tanque.qtdLItros as QTDlitros,
-    tanque.qtdPeixes as QTDpeixes,
-    horta.idHorta as IDHorta,
-    horta.nomeVegetal as 'Nome Vegetal',
-    horta.nomeVegetal as qtdPlantada
-    from empresa join tanque
-    on empresa.idEmpresa = tanque.fkEmpresa
-    join horta
-    on tanque.idTanque = horta.fkTanque;
